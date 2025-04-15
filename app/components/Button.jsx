@@ -3,7 +3,7 @@ const Button = ({ children, onClick, type = "button", className = "" }) => {
     <button
       type={type}
       onClick={onClick}
-      className={`w-full bg-black text-white py-2 rounded-md hover:bg-gray-900 transition ${className}`}
+      className={`w-full bg-black text-white py-2 rounded-md hover:bg-gray-900 transition cursor-pointer ${className}`}
     >
       {children}
     </button>

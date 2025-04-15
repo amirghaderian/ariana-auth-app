@@ -7,7 +7,6 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
@@ -26,7 +25,11 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-sm w-full bg-white p-6 rounded-xl shadow-md">
         <div className="flex justify-center mb-6">
-          <img src="/logo.png" alt="Ariana Labs" className="h-10" />
+          <img
+            src="logo.PNG"
+            alt="Ariana Labs"
+            className="h-10 cursor-pointer"
+          />
         </div>
         <h2 className="text-2xl font-semibold text-gray-800 mb-1">Login</h2>
         <p className="text-sm text-gray-500 mb-6">
