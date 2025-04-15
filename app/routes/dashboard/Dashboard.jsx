@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import api from "../../services/api";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import Button from "../../components/Button";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,7 +20,6 @@ const Dashboard = () => {
       navigate("/login");
     }
   };
-  
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -27,7 +27,7 @@ const Dashboard = () => {
         const res = await api.get("/current_user/");
         setUser(res.data);
       } catch (err) {
-        handleLogout(); 
+        handleLogout();
       } finally {
         setLoading(false);
       }
@@ -48,27 +48,24 @@ const Dashboard = () => {
           {/* User Info */}
           <div className="flex flex-col items-center text-center mb-8">
             <img
-              src={
-                user?.avatar ||
-                "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-              }
+              src={user?.avatar || "logo.png"}
               alt="Avatar"
               className="w-20 h-20 rounded-full mb-3 object-cover"
             />
             <h3 className="font-semibold text-gray-800">
               {user?.first_name} {user?.last_name}
             </h3>
-            <p className="text-sm text-gray-500">@{user?.username}</p>
+            <p className="text-sm text-gray-500">{user?.username}</p>
           </div>
         </div>
 
         {/* Logout Button */}
-        <button
+        <Button
           onClick={handleLogout}
           className="bg-red-500 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-red-600 transition"
         >
           ↶ Logout
-        </button>
+        </Button>
       </div>
 
       {/* Main Content */}

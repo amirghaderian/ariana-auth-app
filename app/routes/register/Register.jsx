@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import api from "../../services/api";
@@ -18,7 +18,7 @@ const Register = () => {
   const [usernameExists, setUsernameExists] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
@@ -73,7 +73,7 @@ const Register = () => {
 
           const token = response.data.token;
           localStorage.setItem("token", token);
-          window.location.href = "/dashboard";
+          navigate("/dashboard", { replace: true });
         });
     } catch (error) {
       const apiErrors = error.response?.data;

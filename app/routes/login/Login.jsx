@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import LoadingSpinner from "../../components/LoadingSpinner";
@@ -10,6 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     debugger;
@@ -38,7 +39,8 @@ const Login = () => {
         );
 
         const token = response.data.token;
-        console.log("✅ Logged in! Token:", token);
+        localStorage.setItem("token", token);
+        navigate("/dashboard", { replace: true });
       } catch (error) {
         const apiErrors = error.response?.data;
 
