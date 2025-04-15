@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import api from "../../services/api";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -16,6 +17,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [usernameExists, setUsernameExists] = useState(false);
   const [avatar, setAvatar] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -37,10 +39,9 @@ const Register = () => {
     } else if (form.password !== form.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match.";
     }
-    debugger;
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
-
+    setLoading(true);
     // Simulate username conflict
     if (form.username === "takenuser") {
       setUsernameExists(true);
@@ -72,6 +73,8 @@ const Register = () => {
       } else {
         console.error("Registration error:", apiErrors);
       }
+    } finally {
+      setLoading(false);
     }
   };
   const handleAvatarChange = (e) => {
@@ -167,7 +170,11 @@ const Register = () => {
             placeholder="Please re-enter your password"
             error={errors.confirmPassword}
           />
-          <Button type="submit">Register</Button>
+          {loading ? (
+            <LoadingSpinner text="Registering..." />
+          ) : (
+            <Button type="submit">Register</Button>
+          )}
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-600">

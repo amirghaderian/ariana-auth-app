@@ -2,11 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
