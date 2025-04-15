@@ -4,11 +4,13 @@ import { useNavigate } from "react-router";
 import api from "../../services/api";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Button from "../../components/Button";
+import Modal from "../../components/Modal";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -61,11 +63,25 @@ const Dashboard = () => {
 
         {/* Logout Button */}
         <Button
-          onClick={handleLogout}
+          onClick={() => setShowLogoutModal(true)}
           className="bg-red-500 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-red-600 transition"
         >
           ↶ Logout
         </Button>
+        {showLogoutModal && (
+          <Modal
+            title="Log out"
+            message="Are you sure you want to sign out of your account?"
+            icon="⚠️"
+            confirmText="Log out"
+            cancelText="Cancel"
+            onConfirm={() => {
+              setShowLogoutModal(false);
+              handleLogout();
+            }}
+            onCancel={() => setShowLogoutModal(false)}
+          />
+        )}
       </div>
 
       {/* Main Content */}
