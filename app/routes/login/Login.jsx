@@ -1,12 +1,25 @@
 import { useState } from "react";
 import { Link } from "react-router";
+import InputField from "../../components/InputField";
+import Button from "../../components/Button";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newErrors = {};
+
+    if (!username.trim()) newErrors.username = "Username is required.";
+    if (!password.trim()) newErrors.password = "Password is required.";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      console.log("Login with:", { username, password });
+    }
   };
 
   return (
@@ -19,38 +32,29 @@ const Login = () => {
         <p className="text-sm text-gray-500 mb-6">
           Enter your username and password to login to your account.
         </p>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Username</label>
-            <input
-              type="text"
-              placeholder="Please enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              placeholder="Please enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900 transition"
-          >
-            Login
-          </button>
+          <InputField
+            label="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Please enter your username"
+            error={errors.username}
+          />
+          <InputField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Please enter your password"
+            error={errors.password}
+          />
+
+          <Button type="submit">Login</Button>
         </form>
+
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don’t have an account?
+          Don’t have an account?{" "}
           <Link to="/register" className="text-black hover:underline">
             Sign up
           </Link>
