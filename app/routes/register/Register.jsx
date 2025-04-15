@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
+import api from "../../services/api";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -22,7 +23,7 @@ const Register = () => {
     if (e.target.name === "username") setUsernameExists(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
@@ -36,17 +37,41 @@ const Register = () => {
     } else if (form.password !== form.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match.";
     }
-
+    debugger;
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
 
-    if (Object.keys(newErrors).length === 0) {
-      // Simulate username conflict
-      if (form.username === "takenuser") {
-        setUsernameExists(true);
-        return;
+    // Simulate username conflict
+    if (form.username === "takenuser") {
+      setUsernameExists(true);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("first_name", form.firstName);
+    formData.append("last_name", form.lastName);
+    formData.append("username", form.username);
+    formData.append("password", form.password);
+    formData.append("confirm_password", form.confirmPassword);
+
+    if (avatar) {
+      const fileInput = document.getElementById("fileInput");
+      if (fileInput && fileInput.files.length > 0) {
+        formData.append("avatar", fileInput.files[0]);
       }
+    }
 
-      console.log("Registering user:", form);
+    try {
+      const response = await api.post("register/", formData);
+      const token = response.data.token;
+      console.log("User registered successfully:", response.data);
+    } catch (error) {
+      const apiErrors = error.response?.data;
+      if (apiErrors?.non_field_errors?.includes("Username already exists.")) {
+        setUsernameExists(true);
+      } else {
+        console.error("Registration error:", apiErrors);
+      }
     }
   };
   const handleAvatarChange = (e) => {
