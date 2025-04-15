@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from "react-router";
 
 const ProtectedRoute = () => {
-  debugger;
   const token = localStorage.getItem("token");
 
   if (!token) {
