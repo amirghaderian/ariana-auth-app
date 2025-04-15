@@ -2,6 +2,7 @@ const InputField = ({
   label,
   type = "text",
   value,
+  name,
   onChange,
   placeholder,
   error,
@@ -20,7 +21,8 @@ const InputField = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+        name={name}
+        className={`w-full px-2 py-1 border rounded-md focus:outline-none focus:ring-2 ${
           error
             ? "border-red-500 focus:ring-red-500"
             : "border-gray-300 focus:ring-black"

@@ -14,6 +14,7 @@ const Register = () => {
 
   const [errors, setErrors] = useState({});
   const [usernameExists, setUsernameExists] = useState(false);
+  const [avatar, setAvatar] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -48,10 +49,16 @@ const Register = () => {
       console.log("Registering user:", form);
     }
   };
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(URL.createObjectURL(file));
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-sm w-full bg-white p-6 rounded-xl shadow-md">
+    <div className=" flex items-center justify-center bg-gray-50 px-4 overflow-hidden ">
+      <div className="max-w-sm w-full bg-white p-6 rounded-xl shadow-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-center mb-6">
           <img src="logo.PNG" alt="Ariana Labs" className="h-10" />
         </div>
@@ -64,12 +71,29 @@ const Register = () => {
         {/* Upload placeholder */}
         <div className="flex items-center gap-4 mb-4 border border-gray-200 p-2 rounded-md">
           <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl">
-            👤
-            
+            {avatar ? (
+              <img
+                src={avatar}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img src="person.svg" alt="avatar" />
+            )}
           </div>
-          <button className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 transition">
+          <label
+            htmlFor="fileInput"
+            className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 transition cursor-pointer"
+          >
             Upload +
-          </button>
+          </label>
+          <input
+            id="fileInput"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
