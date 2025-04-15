@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import api from "../../services/api";
@@ -63,9 +63,18 @@ const Register = () => {
     }
 
     try {
-      const response = await api.post("register/", formData);
-      const token = response.data.token;
-      console.log("User registered successfully:", response.data);
+      debugger;
+      await api
+        .post("register/", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((response) => {
+          debugger;
+
+          const token = response.data.token;
+          localStorage.setItem("token", token);
+          window.location.href = "/dashboard";
+        });
     } catch (error) {
       const apiErrors = error.response?.data;
       if (apiErrors?.non_field_errors?.includes("Username already exists.")) {

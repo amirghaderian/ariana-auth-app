@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import api from "../../services/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -10,7 +11,8 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    debugger;
     e.preventDefault();
     const newErrors = {};
 
@@ -20,7 +22,38 @@ const Login = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      console.log("Login with:", { username, password });
+      setLoading(true);
+      try {
+        const response = await api.post(
+          "auth/",
+          {
+            username,
+            password,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const token = response.data.token;
+        console.log("✅ Logged in! Token:", token);
+      } catch (error) {
+        const apiErrors = error.response?.data;
+
+        if (
+          apiErrors?.non_field_errors?.includes(
+            "Incorrect username or password."
+          )
+        ) {
+          setErrors({ password: "Incorrect username or password." });
+        } else {
+          console.error("Login error:", apiErrors);
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -66,6 +99,7 @@ const Login = () => {
           </Link>
         </p>
       </div>
+      {loading && <LoadingSpinner text="Logging in..." />}
     </div>
   );
 };
