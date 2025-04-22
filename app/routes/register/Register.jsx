@@ -63,14 +63,11 @@ const Register = () => {
     }
 
     try {
-      debugger;
       await api
-        .post("register/", formData, {
+        .post("staff/register/", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((response) => {
-          debugger;
-
           const token = response.data.token;
           localStorage.setItem("token", token);
           navigate("/dashboard", { replace: true });

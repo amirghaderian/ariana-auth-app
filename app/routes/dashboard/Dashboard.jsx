@@ -1,22 +1,29 @@
-// src/pages/Dashboard.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import api from "../../services/api";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
+import PostBox from "../../components/PostBox";
+import PostList from "../../components/PostList";
+import InputField from "../../components/InputField";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchPage, setSearchPage] = useState(1);
+  const [hasMoreSearchResults, setHasMoreSearchResults] = useState(false);
   const handleLogout = async () => {
     try {
-      await api.delete("/auth/");
-    } catch (error) {
-      console.warn("Logout request failed, but proceeding anyway.");
+      await api.delete("staff/auth/");
+    } catch {
+      console.warn("Logout request failed.");
     } finally {
       localStorage.removeItem("token");
       navigate("/login");
@@ -26,9 +33,9 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/current_user/");
+        const res = await api.get("staff/current_user/");
         setUser(res.data);
-      } catch (err) {
+      } catch {
         handleLogout();
       } finally {
         setLoading(false);
@@ -37,17 +44,82 @@ const Dashboard = () => {
 
     fetchUser();
   }, []);
+  useEffect(() => {
+    if (searchTerm.trim() === "") return;
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      const fetchSearchResults = async () => {
+        try {
+          setSearchLoading(true);
+          const res = await api.get("/tweet/", {
+            params: {
+              search: searchTerm,
+              ordering: "-created_at",
+              page: searchPage,
+              count_per_page: 5,
+            },
+            signal: controller.signal,
+          });
+
+          setSearchResults((prev) =>
+            searchPage === 1 ? res.data.results : [...prev, ...res.data.results]
+          );
+          setHasMoreSearchResults(!!res.data.next);
+        } catch (err) {
+          if (err.name !== "CanceledError") {
+            console.error("Search error:", err);
+          }
+        } finally {
+          setSearchLoading(false);
+        }
+      };
+
+      fetchSearchResults();
+    }, 500);
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [searchPage, searchTerm]);
+
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setSearchResults([]);
+      setHasMoreSearchResults(false);
+      return;
+    }
+    setSearchPage(1);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const fetchUserAndPosts = async () => {
+      try {
+        const [userRes, postRes] = await api.get("/tweet/", {
+          params: {
+            ordering: "-created_at",
+            count_per_page: 10,
+          },
+        });
+        setUser(userRes.data);
+        setSearchResults(postRes.data.results);
+      } catch {
+        // handleLogout();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserAndPosts();
+  }, []);
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-md p-6 flex flex-col justify-between rounded-r-3xl">
         <div>
-          {/* User Info */}
           <div className="flex flex-col items-center text-center mb-8">
             <img
               src={user?.avatar || "logo.png"}
@@ -61,7 +133,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Logout Button */}
         <Button
           onClick={() => setShowLogoutModal(true)}
           className="bg-red-500 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-red-600 transition"
@@ -85,18 +156,39 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Logo Top */}
-        <div className="h-16 flex items-center justify-start px-6">
+      <div className="flex-1 flex flex-col bg-gray-100">
+        {/* Top Bar */}
+        <div className="h-16 flex items-center justify-between px-6 shadow-sm bg-white">
           <img src="/logo.PNG" alt="Ariana Labs" className="h-6" />
         </div>
+        <div className="flex justify-center items-center mt-4 px-6">
+          <div className="w-full">
+            <InputField
+              placeholder="search ..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
 
-        {/* Main Body Content */}
-        <div className="flex-1 flex items-center justify-center">
-          <img
-            src="/dashboard-placeholder.png"
-            alt="Dashboard content"
-            className="w-1/2 opacity-70"
+        {/* Post Area */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+          {searchTerm === "" && <PostBox user={user} />}
+          <PostList
+            posts={searchTerm !== "" ? searchResults : undefined}
+            searchTerm={searchTerm}
+            loading={
+              searchFocused && searchTerm.trim() !== ""
+                ? searchLoading
+                : undefined
+            }
+            onEndReached={() => {
+              if (searchTerm && hasMoreSearchResults && !searchLoading) {
+                setSearchPage((prev) => prev + 1);
+                setSearchLoading(true);
+              }
+            }}
+            hasMore={hasMoreSearchResults}
           />
         </div>
       </div>

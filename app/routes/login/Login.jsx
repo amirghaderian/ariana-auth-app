@@ -13,7 +13,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    debugger;
     e.preventDefault();
     const newErrors = {};
 
@@ -26,7 +25,7 @@ const Login = () => {
       setLoading(true);
       try {
         const response = await api.post(
-          "auth/",
+          "staff/auth/",
           {
             username,
             password,
@@ -37,7 +36,6 @@ const Login = () => {
             },
           }
         );
-
         const token = response.data.token;
         localStorage.setItem("token", token);
         navigate("/dashboard", { replace: true });
@@ -58,7 +56,6 @@ const Login = () => {
       }
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-sm w-full bg-white p-6 rounded-xl shadow-md">
